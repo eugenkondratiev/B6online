@@ -4,17 +4,22 @@ const googleDNS = '8.8.8.8'
 const B6ip = '178.158.233.3'
 const testIP = '178.158.238.89'
 const ANSWERS = require('./src/js/text-constants')
-const PING_INTERVAL = 30000;
+const PING_INTERVAL = 60000;
 
-global.ConnectionState = {
-	alive: false,
-	aliveTime: Date.now(),
-	lostTime: Date.now(),
-}
-global.usersList = []
+// global.ConnectionState = {
+// 	alive: false,
+// 	aliveTime: 0,
+// 	lostTime: 0,
+// 	currentTime: Date.now(),
+// }
+// global.usersList = []
+require('./src/model/init-db-read')().then(
+	async () => {
+		await checkIP()
+	}
+)
+	.catch(err => console.error)
 
-
-require('./src/js/init-db-read')().catch(err => console.error)
 
 const handlerMainPing = setInterval(async () => {
 	const rlt = await checkIP()
@@ -28,29 +33,30 @@ dotenv.config();
 
 const botConfig = require('./config.json')
 
-// googlePing(googleDNS, pingConfig)
-//     .then(alive => {
-//         console.log(`${googleDNS} - ${alive ? 'online' : 'NOT online'}`);
-//     }).catch()
-
-
-
-// import { Telegraf, Markup } from "telegraf";
 const { Telegraf, Markup } = require("telegraf");
 
 const bot = new Telegraf(botConfig.token);
 
 bot.use(Telegraf.log());
+const mainMarkupKeyboard = Markup.keyboard([[
+	Markup.button.callback("Початок", "start"),
+	Markup.button.callback("Перевірка", "check"),
+],
+[
+	Markup.button.callback("Підписатись", "subcribe"),
+	Markup.button.callback("Відписатись", "unsubscribe"),
+]]
+)
+	.oneTime().resize()
+
+
+
 
 const startReaction = async ctx => {
 	return await ctx.reply(
 		ANSWERS.START_TEXT,
 		// Markup.keyboard(["/start", "/check"]).oneTime().resize(),
-		Markup.keyboard([
-			Markup.button.callback("Початок", "start"),
-			Markup.button.callback("Перевірка", "check"),
-		])
-			.oneTime().resize(),
+		mainMarkupKeyboard,
 	);
 }
 
@@ -71,13 +77,7 @@ const checkReaction = async ctx => {
 		global.ConnectionState.alive ? ANSWERS.OK_TEXT : ANSWERS.FAIL_TEXT,
 		// checkResult ? ANSWERS.OK_TEXT : ANSWERS.FAIL_TEXT,
 		// Markup.keyboard(["/start", "/check"]).oneTime().resize(),
-		Markup.keyboard([
-			Markup.button.callback("Початок", "start"),
-			Markup.button.callback("Перевірка", "check"),
-			// "Початок", "Перевірка"
-
-		])
-			.oneTime().resize(),
+		mainMarkupKeyboard,
 	);
 }
 
