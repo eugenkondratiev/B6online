@@ -4,19 +4,22 @@ const googleDNS = '8.8.8.8'
 const B6ip = '178.158.233.3'
 const testIP = '178.158.238.89'
 const ANSWERS = require('./src/js/text-constants')
-const PING_INTERVAL = 60000;
+const PING_INTERVAL = 30000;
 
 global.ConnectionState = {
 	alive: false,
 	aliveTime: Date.now(),
 	lostTime: Date.now(),
 }
+global.usersList = []
 
+
+require('./src/js/init-db-read')().catch(err => console.error)
 
 const handlerMainPing = setInterval(async () => {
 	const rlt = await checkIP()
-	const checktime = Date.now()
-	console.log(checktime, "   -   ", rlt);
+	// const checktime = Date.now()
+	// console.log(checktime, "   -   ", rlt);
 }, PING_INTERVAL);
 
 
