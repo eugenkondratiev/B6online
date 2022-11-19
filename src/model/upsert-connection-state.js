@@ -1,5 +1,5 @@
 
-module.exports = async ()=> {
+module.exports = async (ctx)=> {
     const mongoClient = await require('../../db-mongo')();
 
     const collection = mongoClient._db.collection("b6data");
@@ -12,7 +12,7 @@ module.exports = async ()=> {
             {
                 $set: {
                    // _id: 4414414,
-                    ...global.ConnectionState
+                    ...ctx.ConnectionState
                 }
             },
             {

@@ -10,24 +10,24 @@ const checkPing = require('./ping')
 const storeConnectionState = require('../model/upsert-connection-state')
 
 
-async function serverPing() {
+async function serverPing(ctx) {
 
     let checkResult = false;
     try {
         checkResult = await checkPing(B6ip, pingConfig)
-        if (checkResult && !global.ConnectionState.alive) {
+        if (checkResult && !ctx.ConnectionState.alive) {
             console.log("RE alive");
-            global.ConnectionState.alive = true;
-            global.ConnectionState.aliveTime = Date.now()
-            await storeConnectionState()
+            ctx.ConnectionState.alive = true;
+            ctx.ConnectionState.aliveTime = Date.now()
+            await storeConnectionState(ctx)
         }
 
-        if (!checkResult && global.ConnectionState.alive) {
+        if (!checkResult && ctx.ConnectionState.alive) {
             console.log("Falling Edge alive - no connection");
-            global.ConnectionState.alive = false;
+            ctx.ConnectionState.alive = false;
 
-            global.ConnectionState.lostTime = Date.now()
-            await storeConnectionState()
+            ctx.ConnectionState.lostTime = Date.now()
+            await storeConnectionState(ctx)
 
         }
     } catch (error) {
@@ -35,9 +35,9 @@ async function serverPing() {
     }
     finally {
 
-        global.ConnectionState.alive = checkResult;
+        ctx.ConnectionState.alive = checkResult;
 
-        console.log("global.ConnectionState.alive", checkResult);
+        console.log("ctx.ConnectionState.alive", checkResult);
         return checkResult
 
     }

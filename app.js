@@ -1,6 +1,8 @@
 const checkIP = require('./src/js/check')
 const googlePing = require('./src/js/ping')
 
+const broadcastState = require('./src/js/broadcast-power-appear')
+
 const updateUserInDb = require('./src/model/upsert-users-list')
 
 const googleDNS = '8.8.8.8'
@@ -8,28 +10,6 @@ const B6ip = '178.158.233.3'
 const testIP = '178.158.238.89'
 const ANSWERS = require('./src/js/text-constants')
 const PING_INTERVAL = 60000;
-
-// global.ConnectionState = {
-// 	alive: false,
-// 	aliveTime: 0,
-// 	lostTime: 0,
-// 	currentTime: Date.now(),
-// }
-// global.usersList = []
-require('./src/model/init-db-read')().then(
-	async () => {
-		await checkIP()
-	}
-)
-	.catch(err => console.error)
-
-
-const handlerMainPing = setInterval(async () => {
-	const rlt = await checkIP()
-	// const checktime = Date.now()
-	// console.log(checktime, "   -   ", rlt);
-}, PING_INTERVAL);
-
 
 const dotenv = require('dotenv');
 dotenv.config();
@@ -40,6 +20,31 @@ const { Telegraf, Markup } = require("telegraf");
 
 const bot = new Telegraf(botConfig.token);
 
+// global.ConnectionState = {
+// 	alive: false,
+// 	aliveTime: 0,
+// 	lostTime: 0,
+// 	currentTime: Date.now(),
+// }
+// global.usersList = []
+
+require('./src/model/init-db-read')(bot.context).then(
+	async () => {
+		await checkIP(bot.context)
+	}
+)
+	.catch(err => console.error)
+
+
+const handlerMainPing = setInterval(async () => {
+	const rlt = await checkIP(bot.context)
+	// const checktime = Date.now()
+	// console.log(checktime, "   -   ", rlt);
+}, PING_INTERVAL);
+
+
+
+
 bot.use(Telegraf.log());
 const mainMarkupKeyboard = Markup.keyboard([[
 	Markup.button.callback("Початок", "start"),
@@ -48,9 +53,21 @@ const mainMarkupKeyboard = Markup.keyboard([[
 [
 	Markup.button.callback("Підписатись", "subcribe"),
 	Markup.button.callback("Відписатись", "unsubscribe"),
+	Markup.button.callback("TEST", "test"),
 ]]
 )
 	.oneTime().resize()
+
+bot.hears("TEST", async ctx=>{
+	
+	const rlt = await broadcastState(ctx);
+
+	console.log("###  broadcastState- ");
+	return await ctx.reply(
+		ANSWERS.TEST_TEST,
+		mainMarkupKeyboard,
+	);
+});
 
 
 const unsubscribeReaction = async ctx => {
@@ -60,11 +77,17 @@ const unsubscribeReaction = async ctx => {
 	if (global.users[_userId]) {
 		;
 		delete global.users[_userId]
-		global.usersList = [...global.usersList].filter(user => user._id != _userId)
+
+		console.log("USER ID ", _userId);
+
+		global.usersList = [...global.usersList.filter(user => {
+			console.log("+user._id != +_userId", user._id, +_userId, +user._id != +_userId);
+			return +user._id != +_userId
+		})]
 		console.log(global.usersList, global.users);
 		try {
 
-			await updateUserInDb(_userId, {deleteUser:true})
+			await updateUserInDb(ctx, _userId, { deleteUser: true })
 		} catch (error) {
 			console.log("updateUsersListInDb error", error);
 		}
@@ -92,18 +115,19 @@ const subscribeReaction = async ctx => {
 		_id: ctx.message.chat.id,
 		name: ctx.message.chat.username
 	}
+	console.log("before subscribeReaction", global.usersList, global.users);
 
 	if (global.users[_user._id]) {
 		;
 		console.log("ALREADY SUBSRIBED");
 	} else {
 		global.users[_user._id] = _user.name
-		global.usersList.push(_user)
+		if (!global.usersList.some(u => +u._id == +_user._id)) global.usersList.push(_user)
 
-		console.log(global.usersList, global.users);
+		console.log("subscribeReaction", global.usersList, global.users);
 		try {
 
-			await updateUserInDb(_user._id, {insertUser:true})
+			await updateUserInDb(ctx, _user._id, { insertUser: true })
 		} catch (error) {
 			console.log("updateUsersListInDb error", error);
 		}
@@ -142,7 +166,7 @@ const checkReaction = async ctx => {
 	// }
 
 	return await ctx.reply(
-		global.ConnectionState.alive ? ANSWERS.OK_TEXT : ANSWERS.FAIL_TEXT,
+		ctx.ConnectionState.alive ? ANSWERS.OK_TEXT : ANSWERS.FAIL_TEXT,
 		// checkResult ? ANSWERS.OK_TEXT : ANSWERS.FAIL_TEXT,
 		// Markup.keyboard(["/start", "/check"]).oneTime().resize(),
 		mainMarkupKeyboard,

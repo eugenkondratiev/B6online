@@ -1,4 +1,4 @@
-module.exports = async (_userId, { insertUser, deleteUser }) => {
+module.exports = async (ctx, _userId, { insertUser, deleteUser }) => {
 
     const mongoClient = await require('../../db-mongo')();
 
