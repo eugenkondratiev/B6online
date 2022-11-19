@@ -58,13 +58,13 @@ const mainMarkupKeyboard = Markup.keyboard([[
 )
 	.oneTime().resize()
 
-bot.hears("TEST", async ctx=>{
-	
+bot.hears("TEST", async ctx => {
+
 	const rlt = await broadcastState(ctx);
 
 	console.log("###  broadcastState- ");
 	return await ctx.reply(
-		ANSWERS.TEST_TEST,
+		ANSWERS.TEST_TEXT,
 		mainMarkupKeyboard,
 	);
 });

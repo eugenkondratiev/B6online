@@ -5,6 +5,20 @@ module.exports = async (ctx)=> {
     const collection = mongoClient._db.collection("b6data");
     try {
 
+        await collection.updateOne(
+            {
+                "_id": Date.now()
+            },
+            {
+                $set: {
+                    ...ctx.ConnectionState
+                }
+            },
+            {
+                upsert: true
+            }
+        )
+
         const resp = await collection.updateOne(
             {
                 "_id": 4414414
