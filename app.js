@@ -1,5 +1,8 @@
 const checkIP = require('./src/js/check')
 const googlePing = require('./src/js/ping')
+
+const updateUserInDb = require('./src/model/upsert-users-list')
+
 const googleDNS = '8.8.8.8'
 const B6ip = '178.158.233.3'
 const testIP = '178.158.238.89'
@@ -50,7 +53,72 @@ const mainMarkupKeyboard = Markup.keyboard([[
 	.oneTime().resize()
 
 
+const unsubscribeReaction = async ctx => {
 
+	const _userId = ctx.message.chat.id
+
+	if (global.users[_userId]) {
+		;
+		delete global.users[_userId]
+		global.usersList = [...global.usersList].filter(user => user._id != _userId)
+		console.log(global.usersList, global.users);
+		try {
+
+			await updateUserInDb(_userId, {deleteUser:true})
+		} catch (error) {
+			console.log("updateUsersListInDb error", error);
+		}
+	} else {
+		console.log("ALREADY UNSUBSRIBED. NO SUCH USER IN THE LIST");
+	}
+
+
+	console.log("##USERID - ", _userId);
+	return await ctx.reply(
+		ANSWERS.UNSUBSCRIBE_TEST,
+		mainMarkupKeyboard,
+	);
+
+}
+bot.command("unsubcribe", unsubscribeReaction);
+// bot.hears("/unsubcribe", unsubscribeReaction);
+bot.hears("Відписатись", unsubscribeReaction);
+
+
+
+const subscribeReaction = async ctx => {
+
+	const _user = {
+		_id: ctx.message.chat.id,
+		name: ctx.message.chat.username
+	}
+
+	if (global.users[_user._id]) {
+		;
+		console.log("ALREADY SUBSRIBED");
+	} else {
+		global.users[_user._id] = _user.name
+		global.usersList.push(_user)
+
+		console.log(global.usersList, global.users);
+		try {
+
+			await updateUserInDb(_user._id, {insertUser:true})
+		} catch (error) {
+			console.log("updateUsersListInDb error", error);
+		}
+	}
+
+	console.log("##USER - ", _user);
+	return await ctx.reply(
+		ANSWERS.SUBSCRIBE_TEST,
+		mainMarkupKeyboard,
+	);
+
+}
+bot.command("subcribe", subscribeReaction);
+// bot.hears("/subcribe", subscribeReaction);
+bot.hears("Підписатись", subscribeReaction);
 
 const startReaction = async ctx => {
 	return await ctx.reply(

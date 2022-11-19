@@ -3,7 +3,7 @@ const B6ip = '178.158.233.3'
 const testIP = '178.158.238.89'
 
 const pingConfig = {
-    timeout: 1
+    timeout: 5
 }
 
 const checkPing = require('./ping')

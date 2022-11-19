@@ -11,6 +11,7 @@ module.exports = async () => {
         
         // global.usersList = formIdList(usersList, "_id");
         console.log("global USERS_LIST ", global.usersList);
+        console.log("global USERS", global.users);
 
         const { _id, ...restState } = await getMainState();
 
