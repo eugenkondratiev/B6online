@@ -2,12 +2,12 @@ const dateTimeString = require('../utils/form-date-string');
 
 
 module.exports = (ctx) => {
-    return `Зв'язок${ctx.ConnectionState.alive ? " Є" : " відсутній"}
-    🌑 ${dateTimeString(ctx.ConnectionState.lostTime)}
-    💡 ${dateTimeString(ctx.ConnectionState.aliveTime)}
-    Але світло переможе.
+    return `Зв'язок${global.ConnectionState.alive ? " Є" : " відсутній"}
+    🌑 ${dateTimeString(global.ConnectionState.lostTime)}
+    💡 ${dateTimeString(global.ConnectionState.aliveTime)}
+    Cвітло переможе.
     `
 }
 
-// Світла та зв'язку не було ${ctx.ConnectionState.aliveTime - ctx.ConnectionState.lostTime} 
+// Світла та зв'язку не було ${global.ConnectionState.aliveTime - global.ConnectionState.lostTime} 
 // 

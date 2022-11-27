@@ -20,6 +20,8 @@ const { Telegraf, Markup } = require("telegraf");
 
 const bot = new Telegraf(botConfig.token);
 
+
+
 // global.ConnectionState = {
 // 	alive: false,
 // 	aliveTime: 0,
@@ -28,16 +30,18 @@ const bot = new Telegraf(botConfig.token);
 // }
 // global.usersList = []
 
-require('./src/model/init-db-read')(bot.context).then(
+require('./src/model/init-db-read')(bot).then(
 	async () => {
-		await checkIP(bot.context)
+		await checkIP(bot)
+		// await storeConnectionState(bot.context)
+
 	}
 )
 	.catch(err => console.error)
 
 
 const handlerMainPing = setInterval(async () => {
-	const rlt = await checkIP(bot.context)
+	const rlt = await checkIP(bot)
 	// const checktime = Date.now()
 	// console.log(checktime, "   -   ", rlt);
 }, PING_INTERVAL);
@@ -59,8 +63,10 @@ const mainMarkupKeyboard = Markup.keyboard([[
 	.oneTime().resize()
 
 bot.hears("TEST", async ctx => {
-
-	const rlt = await broadcastState(ctx);
+	console.log("botConfig.KES", +ctx.message.chat.id, +ctx.message.chat.id == botConfig.KES, botConfig.KES, botConfig)
+	if (+ctx.message.chat.id == botConfig.KES) {
+		const rlt = await broadcastState(ctx);
+	}
 
 	console.log("###  broadcastState- ");
 	return await ctx.reply(
@@ -166,7 +172,7 @@ const checkReaction = async ctx => {
 	// }
 
 	return await ctx.reply(
-		ctx.ConnectionState.alive ? ANSWERS.OK_TEXT : ANSWERS.FAIL_TEXT,
+		global.ConnectionState.alive ? ANSWERS.OK_TEXT : ANSWERS.FAIL_TEXT,
 		// checkResult ? ANSWERS.OK_TEXT : ANSWERS.FAIL_TEXT,
 		// Markup.keyboard(["/start", "/check"]).oneTime().resize(),
 		mainMarkupKeyboard,
@@ -199,6 +205,41 @@ bot.command("forcecheck", async ctx => {
 	);
 });
 
-bot.launch();
+bot.launch()
+	.then(ctx => {
 
 
+		try {
+
+			// console.log(bot)
+			console.log(bot.context)
+			// console.log(bot.telegram)
+			console.log(bot.telegram.sendMessage)
+		} catch (error) {
+			console.log(error)
+		}
+
+
+
+		// console.log("CTX !!!! ", ctx)
+		// console.log("CTX  telegram!!!! ", ctx.telegram)
+		// console.log("CTX  telegram.sendMessage!!!! ", ctx.telegram.sendMessage)
+	})
+	.catch(err => {
+		console.log("launch error ", err)
+	});
+
+
+/**
+ * 
+ * try {
+
+	console.log(bot.context)
+	console.log(bot.context.telegram)
+	console.log(bot.context.telegram.sendMessage)
+} catch (error) {
+	console.log(error)
+}
+
+
+ */

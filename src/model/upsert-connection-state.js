@@ -1,9 +1,24 @@
 
-module.exports = async (ctx)=> {
+module.exports = async (ctx) => {
     const mongoClient = await require('../../db-mongo')();
+    const formDateTimeString = await require('../../src/utils/form-date-string');
 
     const collection = mongoClient._db.collection("b6data");
     try {
+        const resp = await collection.updateOne(
+            {
+                "_id": 4414414
+            },
+            {
+                $set: {
+                    // _id: 4414414,
+                    ...global.ConnectionState
+                }
+            },
+            {
+                upsert: true
+            }
+        )
 
         await collection.updateOne(
             {
@@ -11,7 +26,9 @@ module.exports = async (ctx)=> {
             },
             {
                 $set: {
-                    ...ctx.ConnectionState
+                    aliveStore: formDateTimeString(global.ConnectionState.aliveTime),
+                    lostStore: formDateTimeString(global.ConnectionState.lostTime),
+                    ...global.ConnectionState
                 }
             },
             {
@@ -19,20 +36,6 @@ module.exports = async (ctx)=> {
             }
         )
 
-        const resp = await collection.updateOne(
-            {
-                "_id": 4414414
-            },
-            {
-                $set: {
-                   // _id: 4414414,
-                    ...ctx.ConnectionState
-                }
-            },
-            {
-                upsert: true
-            }
-        )
 
         return resp
     } catch (err) {

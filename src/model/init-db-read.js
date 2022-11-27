@@ -24,8 +24,9 @@ module.exports = async (ctx) => {
 
         const { _id, ...restState } = await getMainState();
 
-        ctx.ConnectionState = { ...restState };
-        console.log("ctx ConnectionState", ctx.ConnectionState);
+        global.ConnectionState = { ...restState };
+        
+        console.log("global ConnectionState", global.ConnectionState);
 
     } catch (error) {
         console.log("INITIAL READ ERROR");
