@@ -4,6 +4,8 @@ const googlePing = require('./src/js/ping')
 const broadcastState = require('./src/js/broadcast-power-appear')
 
 const updateUserInDb = require('./src/model/upsert-users-list')
+const isAdmin = require('./src/utils/is-admin')
+
 
 const googleDNS = '8.8.8.8'
 const B6ip = '178.158.233.3'
@@ -47,7 +49,7 @@ const handlerMainPing = setInterval(async () => {
 
 
 bot.use(Telegraf.log());
-const mainMarkupKeyboard = Markup.keyboard([[
+const mainMarkupAdminKeyboard = Markup.keyboard([[
 	Markup.button.callback("Початок", "start"),
 	Markup.button.callback("Перевірка", "check"),
 ],
@@ -57,18 +59,32 @@ const mainMarkupKeyboard = Markup.keyboard([[
 	Markup.button.callback("TEST", "test"),
 ]]
 )
+.oneTime().resize()
+
+const mainMarkupKeyboard = Markup.keyboard([[
+	Markup.button.callback("Початок", "start"),
+	Markup.button.callback("Перевірка", "check"),
+],
+[
+	Markup.button.callback("Підписатись", "subcribe"),
+	Markup.button.callback("Відписатись", "unsubscribe"),
+]]
+)
 	.oneTime().resize()
+
 
 bot.hears("TEST", async ctx => {
 	console.log("botConfig.KES", +ctx.message.chat.id, +ctx.message.chat.id == botConfig.KES, botConfig.KES, botConfig)
-	if (+ctx.message.chat.id == botConfig.KES) {
-		const rlt = await broadcastState(ctx);
+	let rlt
+
+	if (isAdmin(ctx)) {
+		rlt = await broadcastState(ctx);
 	}
 
-	console.log("###  broadcastState- ");
+	console.log("###  broadcastState- ", rlt);
 	return await ctx.reply(
 		ANSWERS.TEST_TEXT,
-		mainMarkupKeyboard,
+		isAdmin(ctx) ? mainMarkupAdminKeyboard : mainMarkupKeyboard,
 	);
 });
 
@@ -96,13 +112,14 @@ const unsubscribeReaction = async ctx => {
 		}
 	} else {
 		console.log("ALREADY UNSUBSRIBED. NO SUCH USER IN THE LIST");
+		console.log(global.users)
 	}
 
 
 	console.log("##USERID - ", _userId);
 	return await ctx.reply(
 		ANSWERS.UNSUBSCRIBE_TEST,
-		mainMarkupKeyboard,
+		isAdmin(ctx) ? mainMarkupAdminKeyboard : mainMarkupKeyboard,
 	);
 
 }
@@ -119,12 +136,14 @@ const subscribeReaction = async ctx => {
 		name: ctx.message.chat.username
 	}
 	console.log("before subscribeReaction", global.usersList, global.users);
-
+	console.log("global.users[_user._id]", global.users[_user._id])
+	console.log(`global.users[""+_user._id]`, global.users[""+_user._id])
+	console.log(_user._id, _user._id)
 	if (global.users[_user._id]) {
 		;
 		console.log("ALREADY SUBSRIBED");
 	} else {
-		global.users[_user._id] = _user.name
+		global.users[_user._id] = _user.name ? _user.name : "noname"
 		if (!global.usersList.some(u => +u._id == +_user._id)) global.usersList.push(_user)
 
 		console.log("subscribeReaction", global.usersList, global.users);
@@ -139,7 +158,8 @@ const subscribeReaction = async ctx => {
 	console.log("##USER - ", _user);
 	return await ctx.reply(
 		ANSWERS.SUBSCRIBE_TEST,
-		mainMarkupKeyboard,
+		isAdmin(ctx) ? mainMarkupAdminKeyboard : mainMarkupKeyboard,
+
 	);
 
 }
@@ -151,7 +171,8 @@ const startReaction = async ctx => {
 	return await ctx.reply(
 		ANSWERS.START_TEXT,
 		// Markup.keyboard(["/start", "/check"]).oneTime().resize(),
-		mainMarkupKeyboard,
+		isAdmin(ctx) ? mainMarkupAdminKeyboard : mainMarkupKeyboard,
+
 	);
 }
 
@@ -163,7 +184,8 @@ const checkReaction = async ctx => {
 
 	return await ctx.reply(
 		global.ConnectionState.alive ? ANSWERS.OK_TEXT : ANSWERS.FAIL_TEXT,
-		mainMarkupKeyboard,
+		isAdmin(ctx) ? mainMarkupAdminKeyboard : mainMarkupKeyboard,
+
 	);
 }
 

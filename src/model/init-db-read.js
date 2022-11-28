@@ -5,13 +5,13 @@ const arrToObj = require('../utils/arrToObj')
 module.exports = async (ctx) => {
     try {
         const usersList = await getCollection("users");
-        // console.log("usersList - ", usersList);
+        console.log("usersList - INIT DB READ", usersList);
         global.usersList = [...usersList];
         const _initObj = {}
         global.users = global.usersList.reduce((result, element, index) => {
             const {_id, name}=element
             // console.log("###", _id, name, element);
-            result[""+_id] = name;
+            result[""+_id] = name ? name :"noname";
             // console.log("result temp", result);
             return result
         }, _initObj);

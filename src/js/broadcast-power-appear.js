@@ -13,7 +13,7 @@ module.exports = async (ctx) => {
             console.log("send to ", user, "DONE")
 
         } catch (error) {
-            console.log('broadcast error ', error)
+            console.log('broadcast error ', error.message)
         }
 
     }
