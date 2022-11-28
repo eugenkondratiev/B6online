@@ -33,7 +33,6 @@ const bot = new Telegraf(botConfig.token);
 require('./src/model/init-db-read')(bot).then(
 	async () => {
 		await checkIP(bot)
-		// await storeConnectionState(bot.context)
 
 	}
 )
@@ -42,8 +41,6 @@ require('./src/model/init-db-read')(bot).then(
 
 const handlerMainPing = setInterval(async () => {
 	const rlt = await checkIP(bot)
-	// const checktime = Date.now()
-	// console.log(checktime, "   -   ", rlt);
 }, PING_INTERVAL);
 
 
@@ -163,18 +160,9 @@ bot.hears("/start", startReaction);
 bot.hears("Початок", startReaction);
 
 const checkReaction = async ctx => {
-	// let checkResult = false;
-	// try {
-	// 	checkResult = await googlePing(B6ip, pingConfig)
-
-	// } catch (error) {
-	// 	console.log("#### PING FUNCTION FAIL", error);
-	// }
 
 	return await ctx.reply(
 		global.ConnectionState.alive ? ANSWERS.OK_TEXT : ANSWERS.FAIL_TEXT,
-		// checkResult ? ANSWERS.OK_TEXT : ANSWERS.FAIL_TEXT,
-		// Markup.keyboard(["/start", "/check"]).oneTime().resize(),
 		mainMarkupKeyboard,
 	);
 }
@@ -194,12 +182,9 @@ bot.command("forcecheck", async ctx => {
 
 	return await ctx.reply(
 		checkResult ? ANSWERS.OK_TEXT : ANSWERS.FAIL_TEXT,
-		// Markup.keyboard(["/start", "/check"]).oneTime().resize(),
 		Markup.keyboard([
 			Markup.button.callback("Початок", "start"),
 			Markup.button.callback("Перевірка", "check"),
-			// "Початок", "Перевірка"
-
 		])
 			.oneTime().resize(),
 	);
@@ -210,36 +195,12 @@ bot.launch()
 
 
 		try {
-
-			// console.log(bot)
 			console.log(bot.context)
-			// console.log(bot.telegram)
 			console.log(bot.telegram.sendMessage)
 		} catch (error) {
 			console.log(error)
 		}
-
-
-
-		// console.log("CTX !!!! ", ctx)
-		// console.log("CTX  telegram!!!! ", ctx.telegram)
-		// console.log("CTX  telegram.sendMessage!!!! ", ctx.telegram.sendMessage)
 	})
 	.catch(err => {
 		console.log("launch error ", err)
 	});
-
-
-/**
- * 
- * try {
-
-	console.log(bot.context)
-	console.log(bot.context.telegram)
-	console.log(bot.context.telegram.sendMessage)
-} catch (error) {
-	console.log(error)
-}
-
-
- */
