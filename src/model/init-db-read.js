@@ -11,7 +11,8 @@ module.exports = async (ctx) => {
         global.users = global.usersList.reduce((result, element, index) => {
             const {_id, name}=element
             // console.log("###", _id, name, element);
-            result[""+_id] = name ? name :"noname";
+            // result[""+_id] = name ? name :"noname"; 
+            result[""+_id] =  !name || name===undefined ?  "noname" : name 
             // console.log("result temp", result);
             return result
         }, _initObj);

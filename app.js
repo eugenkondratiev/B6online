@@ -11,7 +11,7 @@ const googleDNS = '8.8.8.8'
 const B6ip = '178.158.233.3'
 const testIP = '178.158.238.89'
 const ANSWERS = require('./src/js/text-constants')
-const PING_INTERVAL = 60000;
+const PING_INTERVAL = 120000;
 
 const dotenv = require('dotenv');
 dotenv.config();
@@ -143,7 +143,8 @@ const subscribeReaction = async ctx => {
 		;
 		console.log("ALREADY SUBSRIBED");
 	} else {
-		global.users[_user._id] = _user.name ? _user.name : "noname"
+		global.users[_user._id] = !_user.name || _user.name===undefined ?  "noname" :_user.name 
+
 		if (!global.usersList.some(u => +u._id == +_user._id)) global.usersList.push(_user)
 
 		console.log("subscribeReaction", global.usersList, global.users);
