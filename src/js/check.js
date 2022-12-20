@@ -31,6 +31,8 @@ async function serverPing(ctx) {
             global.ConnectionState.alive = false;
             global.ConnectionState.lostTime = Date.now()
             await storeConnectionState(ctx)
+            await performBroadcast(ctx)
+
         }
     } catch (error) {
         console.log("#### PING FUNCTION FAIL", error);

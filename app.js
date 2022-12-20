@@ -139,7 +139,8 @@ const subscribeReaction = async ctx => {
 	console.log("global.users[_user._id]", global.users[_user._id])
 	console.log(`global.users[""+_user._id]`, global.users[""+_user._id])
 	console.log(_user._id, _user._id)
-	if (global.users[_user._id]) {
+	if (global.users[_user._id]
+		) {
 		;
 		console.log("ALREADY SUBSRIBED");
 	} else {
