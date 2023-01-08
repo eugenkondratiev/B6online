@@ -20,7 +20,7 @@ module.exports = async (ctx) => {
         // global.users = arrToObj(global.usersList, "_id")
 
         // global.usersList = formIdList(usersList, "_id");
-        console.log("ctx USERS_LIST ", global.usersList);
+        console.log("ctx USERS_LIST ", global.usersList, global.usersList.length);
         console.log("ctx USERS", global.users);
 
         const { _id, ...restState } = await getMainState();
