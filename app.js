@@ -49,6 +49,19 @@ const handlerMainPing = setInterval(async () => {
 
 
 bot.use(Telegraf.log());
+
+bot.use(ctx => {
+
+
+	if (isAdmin(ctx)) {
+		const _txt = ctx.message.text;
+		if (_txt.match(/\/broadcast /g)) {
+
+			console.log("##### ADMIN MESSAGE ", _txt.replace(/\/broadcast /g, ""))
+		}
+	}
+})
+
 const mainMarkupAdminKeyboard = Markup.keyboard([[
 	Markup.button.callback("Початок", "start"),
 	Markup.button.callback("Перевірка", "check"),
@@ -59,7 +72,7 @@ const mainMarkupAdminKeyboard = Markup.keyboard([[
 	Markup.button.callback("TEST", "test"),
 ]]
 )
-.oneTime().resize()
+	.oneTime().resize()
 
 const mainMarkupKeyboard = Markup.keyboard([[
 	Markup.button.callback("Початок", "start"),
@@ -137,14 +150,14 @@ const subscribeReaction = async ctx => {
 	}
 	console.log("before subscribeReaction", global.usersList, global.users);
 	console.log("global.users[_user._id]", global.users[_user._id])
-	console.log(`global.users[""+_user._id]`, global.users[""+_user._id])
+	console.log(`global.users[""+_user._id]`, global.users["" + _user._id])
 	console.log(_user._id, _user._id)
 	if (global.users[_user._id]
-		) {
+	) {
 		;
 		console.log("ALREADY SUBSRIBED");
 	} else {
-		global.users[_user._id] = !_user.name || _user.name===undefined ?  "noname" :_user.name 
+		global.users[_user._id] = !_user.name || _user.name === undefined ? "noname" : _user.name
 
 		if (!global.usersList.some(u => +u._id == +_user._id)) global.usersList.push(_user)
 

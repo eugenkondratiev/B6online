@@ -1,5 +1,6 @@
 
 const formStateMesssage = require('../model/state-message');
+const pausePromise = require('../utils/pause-promise');
 
 module.exports = async (ctx) => {
     ;
@@ -11,6 +12,7 @@ module.exports = async (ctx) => {
         try {
             await ctx.telegram.sendMessage(user._id, formStateMesssage(ctx))
             console.log("send to ", user, "DONE")
+             await pausePromise(40)
 
         } catch (error) {
             console.log('broadcast error ', error)
